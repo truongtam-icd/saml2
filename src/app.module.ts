@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ModelModule } from './model/model.module';
 import { UserModule } from './user/user.module';
+import { FetchModule } from 'nestjs-fetch';
 
 @Module({
-  imports: [AuthModule, ModelModule, UserModule],
+  imports: [AuthModule, ModelModule, UserModule, FetchModule],
   controllers: [AppController],
   providers: [AppService],
 })

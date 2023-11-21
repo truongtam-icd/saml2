@@ -18,7 +18,7 @@
         </md:NameIDFormat>
 
         <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                                     Location="http://localhost:3000/api/auth/sso/saml/login/callback"/>
+                                     Location="http://localhost:3000/api/auth/sso/saml/logout/callback"/>
 
         <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
                                      Location="http://localhost:3000/api/auth/sso/saml/login/callback" index="0"/>

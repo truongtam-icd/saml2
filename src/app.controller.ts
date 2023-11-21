@@ -5,6 +5,7 @@ import {
   Request,
   Get,
   Response,
+  SetMetadata,
 } from '@nestjs/common';
 import { resolve } from 'path';
 import express from 'express';
@@ -15,14 +16,26 @@ import { UserService } from './user/user.service';
 import { User } from './model/user';
 import { SamlStrategy } from './auth/saml.strategy';
 import { SessionGuard } from './auth/session.guard';
+import { SamlOptions, Profile } from '@node-saml/passport-saml';
+import { FetchService } from 'nestjs-fetch';
+
+interface RequestWithUser extends express.Request {
+  samlLogoutRequest: any;
+  user: any;
+}
 
 @Controller()
 export class AppController {
+  profile: Profile;
+
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly samlStrategy: SamlStrategy,
-  ) {}
+    private readonly fetch: FetchService,
+  ) {
+    this.profile = this.samlStrategy.profile;
+  }
 
   @Get()
   async homepage(@Response() res: express.Response) {
@@ -48,35 +61,23 @@ export class AppController {
       const jwt = this.authService.getTokenForUser(user);
       this.userService.storeUser(user);
       this, res.redirect('/?jwt=' + jwt);
+    } else {
+      res.redirect('/');
     }
   }
 
   @Get('api/profile')
   @UseGuards(JwtAuthGuard)
-  getProfile(@Request() req: any) {
-    return req.user;
-  }
-
-  @Get('api/auth/sso/saml/logout')
-  async samlLogout(
-    @Request() req: express.Request,
-    @Response() res: express.Response,
-  ) {
+  async getProfile(@Request() req: any) {
     const samlStrategy = this.samlStrategy;
-    const options = samlStrategy._saml?.options;
-
-    (this.samlStrategy as any).logout(req, () => {
-      res.redirect(options?.logoutUrl || '/');
-    });
-  }
-
-  @Post('api/auth/sso/saml/logout/callback')
-  @UseGuards(SamlAuthGuard)
-  async samlSingleLogoutService(
-    @Request() req: express.Request,
-    @Response() res: express.Response
-  ) {
-    res.redirect('/');
+    let url: string = '';
+    if (samlStrategy._saml) {
+      url = await samlStrategy._saml.getLogoutUrlAsync(samlStrategy.profile, '', {})
+    }
+    return {
+      user: req.user,
+      url: url
+    }
   }
 
   @Get('api/auth/sso/saml/metadata')

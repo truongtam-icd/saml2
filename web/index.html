@@ -36,16 +36,20 @@
 					return
 				} else {
 					const json = await res.json()
-
-					goToProfilePage()
-					document.getElementById("userid").innerHTML = json.username;
-					document.getElementById("phone").innerHTML = json.phone;
-					document.getElementById("email").innerHTML = json.email;
+          console.log(json);
+					goToProfilePage();
+					document.getElementById("userid").innerHTML = json.user.email;
+					document.getElementById("phone").innerHTML = json.user.phone;
+					document.getElementById("email").innerHTML = json.user.email;
+          document.getElementById("logout").href = json.url;
 				}
 			}
 
 			const logout = () => {
 				localStorage.removeItem('jwt');
+        setTimeout(() => {
+          window.location.href='/';
+        }, 5000);
 			}
 		</script>
 	</head>
@@ -60,7 +64,7 @@
 				<li>Email: <span id="email"></span></li>
 				<li>Phone: <span id="phone"></span></li>
 			</ul>
-			<p><a id="logout" href="/api/auth/sso/saml/logout" onclick="logout()">Log Out</a></p>
+			<p><a id="logout" href="#" target="_blank" onclick="logout()">Log Out</a></p>
 		</div>
 
 	</body>
